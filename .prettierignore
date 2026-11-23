@@ -1,0 +1,6 @@
+.next
+node_modules
+reference
+screens
+package-lock.json
+src/components/icons
