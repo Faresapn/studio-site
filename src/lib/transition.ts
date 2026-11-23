@@ -17,7 +17,7 @@
  * State lives in this module rather than React so that timing is never at the mercy of re-renders.
  */
 import type { useRouter } from 'next/navigation';
-import { gsap, initGsap, unit, decodeImages, prefersReducedMotion } from './motion';
+import { animate, IO, OUT, unit, decodeImages, prefersReducedMotion, type AnimationPlaybackControls } from './motion';
 import { scrollToInstant, getLenis } from './scroll';
 
 type Router = ReturnType<typeof useRouter>;
@@ -49,12 +49,13 @@ let waiters: { path: string; resolve: () => void }[] = [];
 const scrolls = new Map<string, number>();
 /** The last shared-element jump, so Back can reverse it. */
 let lastFlip: { from: string; to: string; id: string } | null = null;
+/** The running fade on <main>, so a newer navigation can stop it. */
+let mainAnim: AnimationPlaybackControls | null = null;
 
 /* ---------------------------------------------------------------- wiring */
 
 export function connect(e: Env) {
   env = e;
-  initGsap();
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 }
 
@@ -73,6 +74,20 @@ export function ready() {
 }
 
 export const isBooting = () => phase === 'boot';
+
+/** Back to the boot state so the loader can play again: cancels transitions and clears their layers. */
+export function reboot() {
+  goId++;
+  phase = 'boot';
+  lastFlip = null;
+  document.querySelectorAll('.flip-clone, .page-ghost').forEach((n) => n.remove());
+  if (env) {
+    stopMain();
+    env.main.style.opacity = '';
+    env.main.style.transform = '';
+    env.hideTransit();
+  }
+}
 
 /**
  * Run `cb` once the page this component belongs to has entered. Components mounted while the page is
@@ -111,8 +126,17 @@ function waitForPath(path: string, timeout = 8000): Promise<boolean> {
 }
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
-const tween = (target: gsap.TweenTarget, vars: gsap.TweenVars) =>
-  new Promise<void>((resolve) => gsap.to(target, { ...vars, onComplete: () => resolve() }));
+function stopMain() {
+  mainAnim?.stop();
+  mainAnim = null;
+}
+
+/** Fade <main>; returns when the fade has finished. */
+function fadeMain(main: HTMLElement, to: number, duration: number) {
+  stopMain();
+  mainAnim = animate(main, { opacity: to }, { duration, ease: 'easeInOut' });
+  return mainAnim.finished.then(() => undefined);
+}
 
 /* ---------------------------------------------------------------- shared element helpers */
 
@@ -170,21 +194,32 @@ export function makeClone(box: HTMLElement): HTMLDivElement | null {
   const m = new DOMMatrix(getComputedStyle(img).transform === 'none' ? undefined : getComputedStyle(img).transform);
   const ir = img.getBoundingClientRect();
   // parallax offset = where the image is drawn relative to its box
-  gsap.set(clone.children, { x: m.m41, y: ir.top - r.top - (ir.height - r.height) / 2, scale: m.a || 1 });
-  gsap.to(clone.children, { x: 0, y: 0, scale: 1, duration: FLIGHT, ease: 'io' });
+  const y0 = ir.top - r.top - (ir.height - r.height) / 2;
+  animate(
+    [...clone.children] as HTMLElement[],
+    { x: [m.m41, 0], y: [y0, 0], scale: [m.a || 1, 1] },
+    { duration: FLIGHT, ease: IO },
+  );
   return clone;
 }
 
+/** Move the clone's box (it is position: fixed, so left/top/width/height are the box itself). */
 function fly(clone: HTMLElement, to: Rect, duration = FLIGHT) {
-  return tween(clone, { ...px(to), duration, ease: 'io' });
+  return animate(
+    clone,
+    { left: to.left, top: to.top, width: to.width, height: to.height },
+    { duration, ease: IO },
+  ).finished.then(() => undefined);
 }
-const px = (r: Rect) => ({ left: r.left, top: r.top, width: r.width, height: r.height });
+
+const fadeOut = (el: HTMLElement, duration: number) =>
+  animate(el, { opacity: 0 }, { duration, ease: 'easeOut' }).finished.then(() => undefined);
 
 /** Fade the clone out once the real image underneath has decoded, then drop it. */
 async function settleClone(clone: HTMLElement, target: Element | null) {
   const img = target?.querySelector('img');
   if (img?.decode) await Promise.race([img.decode().catch(() => undefined), sleep(1200)]);
-  await tween(clone, { opacity: 0, duration: 0.45, ease: 'power1.out' });
+  await fadeOut(clone, 0.45);
   clone.remove();
 }
 
@@ -228,7 +263,9 @@ export async function navigate(href: string, opts: NavOptions = {}) {
 
   if (prefersReducedMotion()) {
     router.push(url.pathname + url.search + url.hash, { scroll: false });
-    if (!(await waitForPath(path))) return void (window.location.href = href);
+    const ok = await waitForPath(path);
+    if (id !== goId) return;
+    if (!ok) return void (window.location.href = href);
     scrollToInstant(0);
     phase = 'idle';
     emitEnter();
@@ -241,8 +278,7 @@ export async function navigate(href: string, opts: NavOptions = {}) {
   const clone = opts.flipEl ? makeClone(opts.flipEl) : null;
   const flight = clone ? fly(clone, heroRect()) : null;
 
-  gsap.killTweensOf(main);
-  await tween(main, { opacity: 0, duration: LEAVE, ease: 'power1.inOut' });
+  await fadeMain(main, 0, LEAVE);
   if (id !== goId) return clone?.remove();
 
   router.push(url.pathname + url.search + url.hash, { scroll: false });
@@ -255,6 +291,7 @@ export async function navigate(href: string, opts: NavOptions = {}) {
   }, TRANSIT_DELAY);
 
   const arrived = await waitForPath(path);
+  if (id !== goId) return clone?.remove();
   if (!arrived) return void (window.location.href = href);
   await decodeImages(main);
   clearTimeout(timer);
@@ -283,20 +320,14 @@ export async function navigate(href: string, opts: NavOptions = {}) {
 function enterPage(main: HTMLElement, steady: boolean) {
   phase = 'entering';
   emitEnter();
-  gsap.fromTo(
-    main,
-    { opacity: 0, y: steady ? 0 : 14 * unit() },
-    {
-      opacity: 1,
-      y: 0,
-      duration: ENTER,
-      ease: 'out',
-      clearProps: 'transform',
-      onComplete: () => {
-        if (phase === 'entering') phase = 'idle';
-      },
-    },
-  );
+  stopMain();
+  const anim = animate(main, { opacity: [0, 1], y: [steady ? 0 : 14 * unit(), 0] }, { duration: ENTER, ease: OUT });
+  mainAnim = anim;
+  void anim.finished.then(() => {
+    if (mainAnim !== anim) return;
+    main.style.transform = ''; // a transform would make <main> the containing block for fixed children
+    if (phase === 'entering') phase = 'idle';
+  });
 }
 
 function focusPage(path: string) {
@@ -341,9 +372,9 @@ export async function handlePop() {
       ghost.querySelector<HTMLElement>('[data-flip-target]')?.style.setProperty('visibility', 'hidden');
     }
   }
-  gsap.killTweensOf(main);
-  gsap.set(main, { opacity: 0 });
-  const leaving = tween(ghost, { opacity: 0, duration: LEAVE, ease: 'power1.inOut' }).then(() => ghost.remove());
+  stopMain();
+  main.style.opacity = '0';
+  const leaving = fadeOut(ghost, LEAVE).then(() => ghost.remove());
 
   phase = 'waiting';
   if (!(await waitForPath(to))) {
@@ -360,10 +391,10 @@ export async function handlePop() {
   if (clone && card && onScreen(rectOf(card))) {
     enterPage(main, true);
     await fly(clone, rectOf(card), 0.9);
-    await tween(clone, { opacity: 0, duration: 0.3 });
+    await fadeOut(clone, 0.3);
     clone.remove();
   } else {
-    if (clone) void tween(clone, { opacity: 0, duration: 0.4 }).then(() => clone?.remove());
+    if (clone) void fadeOut(clone, 0.4).then(() => clone?.remove());
     enterPage(main, false);
   }
   lastFlip = null;

@@ -1,24 +1,26 @@
 'use client';
 
 /**
- * GSAP setup shared by every animated component. The two curves are the prototype's
- * --out and --io custom properties, so JS and CSS motion share the same feel.
+ * Motion setup shared by every animated component.
+ * OUT and IO are the prototype's --out and --io custom properties, so JS and CSS motion share one feel.
+ * No springs with overshoot: this is a quiet architecture site.
  */
-import gsap from 'gsap';
-import { CustomEase } from 'gsap/CustomEase';
+import { animate, cancelFrame, frame, stagger, type AnimationPlaybackControls } from 'motion';
 
-let ready = false;
-export function initGsap() {
-  if (ready || typeof window === 'undefined') return gsap;
-  gsap.registerPlugin(CustomEase);
-  CustomEase.create('out', '0.22, 1, 0.36, 1');
-  CustomEase.create('io', '0.65, 0, 0.35, 1');
-  gsap.ticker.lagSmoothing(0);
-  ready = true;
-  return gsap;
+export { animate, stagger };
+export type { AnimationPlaybackControls };
+
+export const OUT = [0.22, 1, 0.36, 1] as const;
+export const IO = [0.65, 0, 0.35, 1] as const;
+
+type Tick = (timestamp: number, delta: number) => void;
+
+/** Run `fn` every frame (Motion's frame loop, shared with its animations and with Lenis). */
+export function onFrame(fn: Tick): () => void {
+  const process = ({ timestamp, delta }: { timestamp: number; delta: number }) => fn(timestamp, delta);
+  frame.update(process, true);
+  return () => cancelFrame(process);
 }
-
-export { gsap };
 
 export const prefersReducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;

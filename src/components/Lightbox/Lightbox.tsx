@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { gsap, initGsap, isDesktop, prefersReducedMotion, unit } from '@/lib/motion';
+import { animate, IO, OUT, isDesktop, prefersReducedMotion, unit } from '@/lib/motion';
 import { lockScroll } from '@/lib/scroll';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import type { Media } from '@/content/types';
@@ -39,6 +39,21 @@ const rectOf = (el: Element): Rect => {
 const onScreen = (r: Rect) => r.top < window.innerHeight && r.top + r.height > 0;
 const pad2 = (n: number) => String(n).padStart(2, '0');
 
+/** Place the box instantly (it is position: fixed, so these are its viewport coordinates). */
+function place(el: HTMLElement | null, r: Rect) {
+  if (!el) return;
+  el.style.left = `${r.left}px`;
+  el.style.top = `${r.top}px`;
+  el.style.width = `${r.width}px`;
+  el.style.height = `${r.height}px`;
+}
+const asKeyframes = (a: Rect, b: Rect) => ({
+  left: [a.left, b.left],
+  top: [a.top, b.top],
+  width: [a.width, b.width],
+  height: [a.height, b.height],
+});
+
 /**
  * Full-screen photo viewer. Opens by growing the clicked thumbnail into place (FLIP), steps with the
  * arrows, arrow keys or a swipe, and closes with Escape, the close button or a click on the backdrop,
@@ -63,14 +78,13 @@ export default function Lightbox({ images, start, title, thumbFor, onClosed }: P
 
   /* open: grow out of the thumbnail */
   useLayoutEffect(() => {
-    initGsap();
     lockScroll('lightbox', true);
     const from = thumbFor(start);
     const to = fitRect(images[start]);
-    gsap.set(box.current, to);
-    gsap.fromTo(bg.current, { opacity: 0 }, { opacity: 1, duration: rm ? 0 : 0.5, ease: 'power1.out' });
-    gsap.fromTo(chrome.current, { opacity: 0 }, { opacity: 1, duration: rm ? 0 : 0.5, delay: rm ? 0 : 0.45 });
-    if (from && !rm) gsap.from(box.current, { ...rectOf(from), duration: 0.9, ease: 'io' });
+    place(box.current, to);
+    if (bg.current) animate(bg.current, { opacity: [0, 1] }, { duration: rm ? 0 : 0.5, ease: 'easeOut' });
+    if (chrome.current) animate(chrome.current, { opacity: [0, 1] }, { duration: rm ? 0 : 0.5, delay: rm ? 0 : 0.45 });
+    if (from && !rm && box.current) animate(box.current, asKeyframes(rectOf(from), to), { duration: 0.9, ease: IO });
     return () => lockScroll('lightbox', false);
     // run once on open
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,20 +93,16 @@ export default function Lightbox({ images, start, title, thumbFor, onClosed }: P
   /* after a step: place the new photo and slide it in from the side we are heading to */
   useLayoutEffect(() => {
     if (!dir.current) return;
-    gsap.set(box.current, fitRect(images[index]));
-    gsap.fromTo(
-      box.current,
-      { opacity: 0, x: dir.current * 40 },
-      {
-        opacity: 1,
-        x: 0,
-        duration: rm ? 0 : 0.6,
-        ease: 'out',
-        onComplete: () => {
-          busy.current = false;
-        },
-      },
-    );
+    const el = box.current;
+    if (!el) return;
+    place(el, fitRect(images[index]));
+    void animate(
+      el,
+      { opacity: [0, 1], x: [dir.current * 40, 0] },
+      { duration: rm ? 0 : 0.6, ease: OUT },
+    ).finished.then(() => {
+      busy.current = false;
+    });
   }, [index, images, rm]);
 
   const step = useCallback(
@@ -100,13 +110,10 @@ export default function Lightbox({ images, start, title, thumbFor, onClosed }: P
       if (busy.current || images.length < 2) return;
       busy.current = true;
       dir.current = d;
-      gsap.to(box.current, {
-        opacity: 0,
-        x: -d * 40,
-        duration: rm ? 0 : 0.3,
-        ease: 'power1.in',
-        onComplete: () => setIndex((i) => (i + d + images.length) % images.length),
-      });
+      if (!box.current) return;
+      void animate(box.current, { opacity: 0, x: -d * 40 }, { duration: rm ? 0 : 0.3, ease: 'easeIn' }).finished.then(
+        () => setIndex((i) => (i + d + images.length) % images.length),
+      );
     },
     [images.length, rm],
   );
@@ -116,12 +123,17 @@ export default function Lightbox({ images, start, title, thumbFor, onClosed }: P
     busy.current = true;
     const thumb = thumbFor(index);
     const done = () => onClosed();
-    gsap.to(chrome.current, { opacity: 0, duration: rm ? 0 : 0.25 });
-    gsap.to(bg.current, { opacity: 0, duration: rm ? 0 : 0.6, delay: rm ? 0 : 0.2, ease: 'power1.inOut' });
+    const el = box.current;
+    if (chrome.current) animate(chrome.current, { opacity: 0 }, { duration: rm ? 0 : 0.25 });
+    if (bg.current)
+      animate(bg.current, { opacity: 0 }, { duration: rm ? 0 : 0.6, delay: rm ? 0 : 0.2, ease: 'easeInOut' });
+    if (!el) return done();
     if (thumb && onScreen(rectOf(thumb)) && !rm) {
-      gsap.to(box.current, { ...rectOf(thumb), x: 0, duration: 0.8, ease: 'io', onComplete: done });
+      void animate(el, { ...asKeyframes(rectOf(el), rectOf(thumb)), x: 0 }, { duration: 0.8, ease: IO }).finished.then(
+        done,
+      );
     } else {
-      gsap.to(box.current, { opacity: 0, duration: rm ? 0 : 0.4, onComplete: done });
+      void animate(el, { opacity: 0 }, { duration: rm ? 0 : 0.4 }).finished.then(done);
     }
   }, [index, thumbFor, onClosed, rm]);
 
@@ -139,7 +151,7 @@ export default function Lightbox({ images, start, title, thumbFor, onClosed }: P
   /* keep the photo fitted when the window changes */
   useEffect(() => {
     const onResize = () => {
-      gsap.set(box.current, fitRect(images[index]));
+      place(box.current, fitRect(images[index]));
       setSize((n) => n + 1);
     };
     window.addEventListener('resize', onResize);

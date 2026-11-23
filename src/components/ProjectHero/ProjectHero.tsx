@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 import Logo from '@/components/Logo/Logo';
-import { gsap, initGsap, prefersReducedMotion } from '@/lib/motion';
+import { animate, OUT, onFrame, prefersReducedMotion, stagger } from '@/lib/motion';
 import { onPageEnter } from '@/lib/transition';
 import type { Project } from '@/content/types';
 import s from './ProjectHero.module.css';
@@ -19,14 +19,13 @@ export default function ProjectHero({ project }: { project: Project }) {
   const par = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    initGsap();
-    const lines = root.current ? [...root.current.querySelectorAll('[data-line]')] : [];
+    const lines = root.current ? [...root.current.querySelectorAll<HTMLElement>('[data-line]')] : [];
     return onPageEnter(() => {
       root.current?.classList.remove(s.pre);
-      gsap.fromTo(
+      animate(
         lines,
-        { y: 0, yPercent: 110 },
-        { yPercent: 0, duration: prefersReducedMotion() ? 0 : 1.1, ease: 'out', stagger: 0.08, delay: 0.15 },
+        { y: ['110%', '0%'] },
+        { duration: prefersReducedMotion() ? 0 : 1.1, ease: OUT, delay: stagger(0.08, { startDelay: 0.15 }) },
       );
     });
   }, []);
@@ -42,8 +41,7 @@ export default function ProjectHero({ project }: { project: Project }) {
       if (par.current) par.current.style.transform = `translate3d(0, ${(y * 0.32).toFixed(1)}px, 0)`;
       if (cap.current) cap.current.style.opacity = (1 - Math.min(1, y / (vh * 0.55))).toFixed(3);
     };
-    gsap.ticker.add(tick);
-    return () => gsap.ticker.remove(tick);
+    return onFrame(tick);
   }, []);
 
   const meta = [project.category, project.year, project.location];

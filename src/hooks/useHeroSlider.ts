@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { gsap, initGsap } from '@/lib/motion';
+import { onFrame } from '@/lib/motion';
 import { onPageEnter } from '@/lib/transition';
 
 const DURATION = 6500; // ms per slide
@@ -59,7 +59,6 @@ export function useHeroSlider({ count, onChange }: Options) {
   const next = useCallback(() => go(state.current.cur + 1), [go]);
 
   useEffect(() => {
-    initGsap();
     const s = state.current;
     const off = onPageEnter(() => {
       s.entered = true;
@@ -77,12 +76,12 @@ export function useHeroSlider({ count, onChange }: Options) {
       if (bar.current) bar.current.style.width = `${Math.min(100, (s.elapsed / DURATION) * 100)}%`;
       if (s.elapsed >= DURATION) next();
     };
-    gsap.ticker.add(tick);
+    const stopTick = onFrame(tick);
     const pending = timers.current;
     return () => {
       off();
       io.disconnect();
-      gsap.ticker.remove(tick);
+      stopTick();
       pending.forEach(clearTimeout);
     };
   }, [next]);

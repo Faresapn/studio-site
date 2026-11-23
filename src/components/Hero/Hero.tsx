@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import TransitionLink from '@/components/PageTransition/TransitionLink';
 import Logo from '@/components/Logo/Logo';
 import { useHeroSlider } from '@/hooks/useHeroSlider';
-import { gsap, initGsap, prefersReducedMotion } from '@/lib/motion';
+import { animate, IO, OUT, onFrame, prefersReducedMotion, stagger } from '@/lib/motion';
 import { onPageEnter } from '@/lib/transition';
 import { getProject, projectHref } from '@/content/projects';
 import type { HomePage } from '@/content/types';
@@ -13,7 +13,7 @@ import s from './Hero.module.css';
 
 type Props = { hero: HomePage['hero'] };
 
-const linesOf = (el: Element | null | undefined) => (el ? [...el.querySelectorAll('[data-line]')] : []);
+const linesOf = (el: Element | null | undefined) => (el ? [...el.querySelectorAll<HTMLElement>('[data-line]')] : []);
 
 /**
  * Home hero. Three slides, 6.5 s each: the photo wipes in from the right, the headline lines leave and
@@ -27,18 +27,16 @@ export default function Hero({ hero }: Props) {
 
   const onChange = useCallback((from: number, to: number) => {
     const rm = prefersReducedMotion();
-    gsap.killTweensOf([...linesOf(groups.current[from]), ...linesOf(groups.current[to])]);
-    gsap.to(linesOf(groups.current[from]), {
-      yPercent: -110,
-      opacity: 0,
-      duration: rm ? 0 : 0.7,
-      ease: 'io',
-      stagger: 0.06,
-    });
-    gsap.fromTo(
+    // old lines leave upwards through their mask, the new ones rise in a beat later
+    animate(
+      linesOf(groups.current[from]),
+      { y: '-110%', opacity: 0 },
+      { duration: rm ? 0 : 0.7, ease: IO, delay: stagger(0.06) },
+    );
+    animate(
       linesOf(groups.current[to]),
-      { y: 0, yPercent: 110, opacity: 1 },
-      { yPercent: 0, duration: rm ? 0 : 1.1, ease: 'out', stagger: 0.08, delay: rm ? 0 : 0.38 },
+      { y: ['110%', '0%'], opacity: 1 },
+      { duration: rm ? 0 : 1.1, ease: OUT, delay: rm ? 0 : stagger(0.08, { startDelay: 0.38 }) },
     );
   }, []);
 
@@ -46,19 +44,14 @@ export default function Hero({ hero }: Props) {
 
   /* intro: headline rises in once the page has entered (after the loader or a route transition) */
   useEffect(() => {
-    initGsap();
     return onPageEnter(() => {
       const lines = linesOf(groups.current[0]);
-      // CSS holds the lines below their mask until now; GSAP reads that as a pixel offset, so zero it
-      gsap.set(lines, { y: 0, yPercent: 110 });
       setPre(false);
-      gsap.to(lines, {
-        yPercent: 0,
-        duration: prefersReducedMotion() ? 0 : 1.1,
-        ease: 'out',
-        stagger: 0.08,
-        delay: 0.1,
-      });
+      animate(
+        lines,
+        { y: ['110%', '0%'], opacity: 1 },
+        { duration: prefersReducedMotion() ? 0 : 1.1, ease: OUT, delay: stagger(0.08, { startDelay: 0.1 }) },
+      );
     });
   }, []);
 
@@ -77,8 +70,7 @@ export default function Hero({ hero }: Props) {
       pars.forEach((p) => (p.style.transform = `translate3d(0, ${(y * 0.32).toFixed(1)}px, 0)`));
       if (cap.current) cap.current.style.opacity = (1 - Math.min(1, y / (vh * 0.55))).toFixed(3);
     };
-    gsap.ticker.add(tick);
-    return () => gsap.ticker.remove(tick);
+    return onFrame(tick);
   }, [root]);
 
   const slide = hero.slides[cur];

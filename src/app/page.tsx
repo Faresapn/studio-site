@@ -1,4 +1,3 @@
-import Loader from '@/components/Loader/Loader';
 import Hero from '@/components/Hero/Hero';
 import Intro from '@/components/Intro/Intro';
 import SectionTitle from '@/components/SectionTitle/SectionTitle';
@@ -11,20 +10,17 @@ import { home } from '@/content/home';
 
 export default function HomePage() {
   return (
-    <>
-      <Loader />
-      <RevealScope>
-        <Hero hero={home.hero} />
-        <Intro text={home.intro} />
-        <section aria-labelledby="works-title">
-          <SectionTitle id="works-title">{home.worksTitle}</SectionTitle>
-          <WorksGrid cards={home.gridA} id="a" />
-        </section>
-        <Band band={home.band} />
-        <WorksGrid cards={home.gridB} id="b" spaced />
-        <Cta {...home.cta} />
-        <Footer />
-      </RevealScope>
-    </>
+    <RevealScope>
+      <Hero hero={home.hero} />
+      <Intro text={home.intro} />
+      <section aria-labelledby="works-title">
+        <SectionTitle id="works-title">{home.worksTitle}</SectionTitle>
+        <WorksGrid cards={home.gridA} id="a" />
+      </section>
+      <Band band={home.band} />
+      <WorksGrid cards={home.gridB} id="b" spaced />
+      <Cta {...home.cta} />
+      <Footer />
+    </RevealScope>
   );
 }

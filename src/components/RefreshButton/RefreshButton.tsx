@@ -1,16 +1,19 @@
 'use client';
 
+import { usePathname, useRouter } from 'next/navigation';
 import { useMenuOpen } from '@/lib/menu';
-import { LOADER_KEY } from '@/components/Loader/keys';
+import { replayLoader } from '@/lib/replay';
 import s from './RefreshButton.module.css';
 
 /**
- * Review helper from the prototype: restarts the site from scratch on Home with the loader.
- * Clears the "loader seen" flag for this session and does a full reload, so everything
- * (loader, hero intro, slider) plays exactly as on a first visit.
+ * Review helper from the prototype: replays the loader (the house photos wiping up one after another,
+ * the count, the frame opening into the hero) and returns to Home, without reloading the page.
+ * The photos are already cached, so the sequence plays exactly as designed.
  */
 export default function RefreshButton() {
   const menuOpen = useMenuOpen();
+  const pathname = usePathname();
+  const router = useRouter();
   if (menuOpen) return null;
   return (
     <button
@@ -18,13 +21,9 @@ export default function RefreshButton() {
       className={s.rf}
       aria-label="Refresh: replay the loader and return to Home"
       onClick={() => {
-        try {
-          sessionStorage.removeItem(LOADER_KEY);
-        } catch {}
-        window.scrollTo(0, 0);
-        // a full reload on purpose: a client-side navigation would not replay the first-visit boot
-        window.history.replaceState(null, '', '/');
-        window.location.reload();
+        replayLoader();
+        // Home swaps in underneath the loader, so the frame opens straight into its hero
+        if (pathname !== '/') router.push('/', { scroll: false });
       }}
     >
       Refresh

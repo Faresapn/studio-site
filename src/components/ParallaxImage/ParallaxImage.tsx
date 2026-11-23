@@ -2,7 +2,7 @@
 
 import Image, { type StaticImageData } from 'next/image';
 import { useEffect, useRef } from 'react';
-import { gsap, isDesktop, prefersReducedMotion } from '@/lib/motion';
+import { isDesktop, onFrame, prefersReducedMotion } from '@/lib/motion';
 
 type Props = {
   src: StaticImageData;
@@ -40,8 +40,7 @@ export default function ParallaxImage({ src, alt, className, amount = -9, sizes 
       cur += (p * amount - cur) * 0.12;
       i.style.transform = `translate3d(0, ${cur.toFixed(3)}%, 0)`;
     };
-    gsap.ticker.add(tick);
-    return () => gsap.ticker.remove(tick);
+    return onFrame(tick);
   }, [amount]);
 
   return (

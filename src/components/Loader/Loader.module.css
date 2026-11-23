@@ -1,10 +1,4 @@
-/* The sequence is pure CSS so it starts with the first paint (timings from the prototype's loader). */
-@property --pct {
-  syntax: '<integer>';
-  initial-value: 0;
-  inherits: false;
-}
-
+/* Static first paint (before JS): logo, an empty frame, "Loading 000%". Motion animates from here. */
 .loader {
   position: fixed;
   inset: 0;
@@ -17,11 +11,10 @@
 .lg {
   position: absolute;
   left: calc(40 * var(--u));
-  top: 50%;
-  transform: translateY(-50%);
+  /* centred without a transform: Motion owns transform for the exit */
+  top: calc(50% - 19 * var(--u));
   width: calc(96 * var(--u));
   color: var(--ink);
-  animation: lgOut 1.2s var(--out) 2.8s forwards;
 }
 .lg svg {
   width: 100%;
@@ -29,79 +22,94 @@
   display: block;
 }
 
-.pct {
-  position: absolute;
-  right: calc(40 * var(--u));
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: max(11px, calc(13 * var(--t)));
-  letter-spacing: 0.08em;
-  color: var(--mute);
-  font-variant-numeric: tabular-nums;
-  text-transform: uppercase;
-  animation: pctOut 0.9s var(--io) 2.8s forwards;
-}
-
-/* 0 → 100 over 2.8 s on 1-(1-p)², i.e. ease-out quad */
-.count {
-  counter-reset: pct var(--pct);
-  animation: count 2.8s cubic-bezier(0.5, 1, 0.89, 1) forwards;
-}
-.count::after {
-  content: counter(pct);
-}
-
-/* the frame is a full-screen layer clipped to a 256×384 window; growing it opens the clip */
+/* the frame is a full-screen layer clipped to a 256×384 window; opening it just releases the clip */
 .fr {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  background: var(--soft);
   clip-path: inset(calc(50% - 192 * var(--u)) calc(50% - 128 * var(--u)));
-  animation: grow 1.25s var(--io) 3.05s forwards;
 }
 
-/* each photo wipes up from the bottom; delays (0, 550, 1100, 1650 ms) are set inline */
-.fr img {
+/* one photo per house; each starts fully masked from the top and wipes up into view */
+.ph {
   position: absolute;
-  object-fit: cover;
-  clip-path: inset(100% 0 0 0);
-  animation: wipe 0.9s var(--io) forwards;
-}
-/* the first three photos sit whole inside the frame; only the last one is the full-screen hero that opens */
-.fr img:not(.fin) {
   left: calc(50% - 128 * var(--u));
   top: calc(50% - 192 * var(--u));
   width: calc(256 * var(--u));
   height: calc(384 * var(--u));
+  overflow: hidden;
+  clip-path: inset(100% 0% 0% 0%);
+}
+/* the last one is the full-screen hero that the frame opens onto */
+.ph.fin {
+  inset: 0;
+  width: auto;
+  height: auto;
+}
+.in {
+  position: absolute;
+  inset: 0;
+  transform: scale(1.3);
+}
+.fin .in {
+  transform: scale(1.4);
+}
+.in img {
+  object-fit: cover;
 }
 
-@keyframes count {
-  to {
-    --pct: 100;
-  }
+/* hairline progress under the frame */
+.line {
+  position: absolute;
+  left: calc(50% - 128 * var(--u));
+  top: calc(50% + 192 * var(--u) + 18 * var(--u));
+  width: calc(256 * var(--u));
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
 }
-@keyframes wipe {
-  to {
-    clip-path: inset(0 0 0 0);
-  }
+.line i {
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
 }
-@keyframes grow {
-  to {
-    clip-path: inset(0 0 0 0);
-  }
+
+.pct {
+  position: absolute;
+  right: calc(40 * var(--u));
+  top: calc(50% - 0.5em);
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: max(11px, calc(13 * var(--t)));
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: var(--mute);
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
 }
-/* logo drifts up and fades, the count leaves to the right */
-@keyframes lgOut {
-  to {
-    transform: translateY(calc(-50% - 90 * var(--u)));
-    opacity: 0;
-  }
+
+/* odometer: each digit is a masked column of 0-9 plus a trailing 0, rolled by translateY */
+.odo {
+  display: inline-flex;
+  color: var(--ink);
 }
-@keyframes pctOut {
-  to {
-    transform: translateY(-50%) translateX(calc(120 * var(--u)));
-    opacity: 0;
-  }
+.mask {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+}
+.col span {
+  height: 1em;
+  line-height: 1;
+  text-align: center;
 }
 
 @media (max-width: 1099px) {
@@ -109,35 +117,24 @@
     left: 20px;
     top: 22px;
     width: 76px;
-    transform: none;
-    animation-name: lgOutM;
   }
   .pct {
     top: auto;
     bottom: 40px;
     right: 20px;
-    transform: none;
-    animation-name: pctOutM;
   }
   .fr {
     clip-path: inset(calc(50% - 135px) calc(50% - 90px));
   }
-  .fr img:not(.fin) {
+  .ph {
     left: calc(50% - 90px);
     top: calc(50% - 135px);
     width: 180px;
     height: 270px;
   }
-}
-@keyframes lgOutM {
-  to {
-    transform: translateY(-40px);
-    opacity: 0;
-  }
-}
-@keyframes pctOutM {
-  to {
-    transform: translateX(120px);
-    opacity: 0;
+  .line {
+    left: calc(50% - 90px);
+    top: calc(50% + 135px + 16px);
+    width: 180px;
   }
 }
