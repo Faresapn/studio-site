@@ -9,7 +9,7 @@ export default function Logo({ light = false, className = '' }: { light?: boolea
     <TransitionLink
       href="/"
       className={`${s.logo} ${light ? s.light : ''} ${className}`}
-      aria-label={`${site.name} home`}
+      aria-label={`LOGO, ${site.name} home`}
     >
       <LogoMark title="" aria-hidden="true" />
     </TransitionLink>

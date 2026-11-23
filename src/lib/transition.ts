@@ -17,7 +17,7 @@
  * State lives in this module rather than React so that timing is never at the mercy of re-renders.
  */
 import type { useRouter } from 'next/navigation';
-import { gsap, initGsap, isDesktop, unit, decodeImages, prefersReducedMotion } from './motion';
+import { gsap, initGsap, unit, decodeImages, prefersReducedMotion } from './motion';
 import { scrollToInstant, getLenis } from './scroll';
 
 type Router = ReturnType<typeof useRouter>;
@@ -120,7 +120,8 @@ const tween = (target: gsap.TweenTarget, vars: gsap.TweenVars) =>
 export function heroRect(): Rect {
   const width = document.documentElement.clientWidth;
   const h = window.innerHeight;
-  const height = isDesktop() ? Math.max(h, 620 * unit()) : Math.max(h * 0.78, 520);
+  // 100vh with a floor of 620 design units (620px below 1100px), as in the prototype's final .hero rule
+  const height = Math.max(h, 620 * unit());
   return { left: 0, top: 0, width, height };
 }
 

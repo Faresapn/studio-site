@@ -72,7 +72,7 @@ export default function Menu() {
         </div>
 
         <div className={s.rt}>
-          <TransitionLink href="/" className={s.logo} aria-label={`${site.name} home`}>
+          <TransitionLink href="/" className={s.logo} aria-label={`LOGO, ${site.name} home`}>
             <LogoMark title="" aria-hidden="true" />
           </TransitionLink>
           <nav className={s.nav} aria-label="Main" onMouseLeave={() => setHovered(null)}>

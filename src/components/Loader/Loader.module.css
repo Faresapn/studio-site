@@ -1,3 +1,10 @@
+/* The sequence is pure CSS so it starts with the first paint (timings from the prototype's loader). */
+@property --pct {
+  syntax: '<integer>';
+  initial-value: 0;
+  inherits: false;
+}
+
 .loader {
   position: fixed;
   inset: 0;
@@ -14,9 +21,7 @@
   transform: translateY(-50%);
   width: calc(96 * var(--u));
   color: var(--ink);
-  transition:
-    transform 1.2s var(--out),
-    opacity 0.9s ease;
+  animation: lgOut 1.2s var(--out) 2.8s forwards;
 }
 .lg svg {
   width: 100%;
@@ -34,25 +39,33 @@
   color: var(--mute);
   font-variant-numeric: tabular-nums;
   text-transform: uppercase;
-  transition:
-    transform 0.9s var(--io),
-    opacity 0.6s ease;
+  animation: pctOut 0.9s var(--io) 2.8s forwards;
 }
 
-/* the frame is a full-screen layer clipped to a 256×384 window; growing it just opens the clip */
+/* 0 → 100 over 2.8 s on 1-(1-p)², i.e. ease-out quad */
+.count {
+  counter-reset: pct var(--pct);
+  animation: count 2.8s cubic-bezier(0.5, 1, 0.89, 1) forwards;
+}
+.count::after {
+  content: counter(pct);
+}
+
+/* the frame is a full-screen layer clipped to a 256×384 window; growing it opens the clip */
 .fr {
   position: absolute;
   inset: 0;
   overflow: hidden;
   clip-path: inset(calc(50% - 192 * var(--u)) calc(50% - 128 * var(--u)));
-  transition: clip-path 1.25s var(--io);
+  animation: grow 1.25s var(--io) 3.05s forwards;
 }
 
+/* each photo wipes up from the bottom; delays (0, 550, 1100, 1650 ms) are set inline */
 .fr img {
   position: absolute;
   object-fit: cover;
   clip-path: inset(100% 0 0 0);
-  transition: clip-path 0.9s var(--io);
+  animation: wipe 0.9s var(--io) forwards;
 }
 /* the first three photos sit whole inside the frame; only the last one is the full-screen hero that opens */
 .fr img:not(.fin) {
@@ -61,24 +74,34 @@
   width: calc(256 * var(--u));
   height: calc(384 * var(--u));
 }
-.fr img.on {
-  clip-path: inset(0 0 0 0);
-}
 
-/* end: logo drifts up, the count leaves to the right */
-.out .lg,
-.grow .lg {
-  transform: translateY(calc(-50% - 90 * var(--u)));
-  opacity: 0;
+@keyframes count {
+  to {
+    --pct: 100;
+  }
 }
-.out .pct,
-.grow .pct {
-  transform: translateY(-50%) translateX(calc(120 * var(--u)));
-  opacity: 0;
+@keyframes wipe {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
 }
-
-.grow .fr {
-  clip-path: inset(0 0 0 0);
+@keyframes grow {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+/* logo drifts up and fades, the count leaves to the right */
+@keyframes lgOut {
+  to {
+    transform: translateY(calc(-50% - 90 * var(--u)));
+    opacity: 0;
+  }
+}
+@keyframes pctOut {
+  to {
+    transform: translateY(-50%) translateX(calc(120 * var(--u)));
+    opacity: 0;
+  }
 }
 
 @media (max-width: 1099px) {
@@ -87,12 +110,14 @@
     top: 22px;
     width: 76px;
     transform: none;
+    animation-name: lgOutM;
   }
   .pct {
     top: auto;
     bottom: 40px;
     right: 20px;
     transform: none;
+    animation-name: pctOutM;
   }
   .fr {
     clip-path: inset(calc(50% - 135px) calc(50% - 90px));
@@ -103,12 +128,16 @@
     width: 180px;
     height: 270px;
   }
-  .out .lg,
-  .grow .lg {
+}
+@keyframes lgOutM {
+  to {
     transform: translateY(-40px);
+    opacity: 0;
   }
-  .out .pct,
-  .grow .pct {
+}
+@keyframes pctOutM {
+  to {
     transform: translateX(120px);
+    opacity: 0;
   }
 }

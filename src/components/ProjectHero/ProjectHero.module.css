@@ -77,10 +77,6 @@
 }
 
 @media (max-width: 1099px) {
-  .hero {
-    height: 78vh;
-    min-height: 520px;
-  }
   .cap {
     left: 20px;
     right: 20px;
