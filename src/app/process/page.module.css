@@ -64,94 +64,6 @@
   margin-top: calc(16 * var(--u));
 }
 
-/* stages as cards: the photo sits under a dark wash, number and text on top */
-.pr2 {
-  padding: calc(120 * var(--u)) calc(123 * var(--u)) 0;
-}
-.stages {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: calc(40 * var(--u));
-  margin-top: calc(40 * var(--u));
-}
-
-.stg {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  background: var(--soft);
-  color: #fff;
-}
-.ph {
-  position: absolute;
-  inset: 0;
-  display: block;
-  clip-path: inset(0 0 0 0);
-  transition: clip-path 1.2s var(--io);
-}
-.ph img {
-  object-fit: cover;
-  transition: transform 1.6s var(--out);
-}
-.ph::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(18, 16, 14, 0.35), rgba(18, 16, 14, 0.15) 35%, rgba(18, 16, 14, 0.72));
-}
-.no {
-  position: absolute;
-  z-index: 1;
-  left: 7%;
-  top: 5%;
-  font-family: var(--serif);
-  font-size: max(72px, calc(130 * var(--t)));
-  line-height: 1;
-}
-.bt {
-  position: absolute;
-  z-index: 1;
-  left: 7%;
-  right: 7%;
-  bottom: 7%;
-}
-.bt h3 {
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: max(18px, calc(24 * var(--t)));
-  line-height: 1.3;
-}
-.bt p {
-  font-size: max(12px, calc(14 * var(--t)));
-  line-height: 1.57;
-  color: rgba(255, 255, 255, 0.86);
-  margin-top: calc(16 * var(--u));
-}
-.no,
-.bt {
-  transition:
-    opacity 1s ease,
-    transform 1.1s var(--out);
-}
-
-.stg:global(.arm) .ph {
-  clip-path: inset(0 0 100% 0);
-}
-.stg:global(.arm) .ph img {
-  transform: scale(1.18);
-}
-.stg:global(.arm) .no,
-.stg:global(.arm) .bt {
-  opacity: 0;
-  transform: translateY(calc(28 * var(--u)));
-}
-@media (hover: hover) {
-  .stg:hover .ph img {
-    transform: scale(1.045);
-  }
-}
-
 /* outro */
 .pr3 {
   display: flex;
@@ -183,17 +95,6 @@
     bottom: 32px;
     width: auto;
   }
-  .pr2 {
-    padding: 64px 20px 0;
-  }
-  .stages {
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-top: 28px;
-  }
-  .no {
-    font-size: 96px;
-  }
   .pr3 {
     flex-direction: column;
     align-items: flex-start;
@@ -202,15 +103,5 @@
   }
   .pr3 p {
     width: auto;
-  }
-}
-
-@media (max-width: 699px) {
-  .stages {
-    grid-template-columns: 1fr;
-  }
-  .stg {
-    aspect-ratio: auto;
-    min-height: 360px;
   }
 }

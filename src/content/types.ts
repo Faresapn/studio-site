@@ -79,6 +79,18 @@ export type ProcessStage = {
   image: Media;
 };
 
+/** A label pinned to a point in the 3D house; shown while the build progress is inside `win` (0-6). */
+export type SceneLabel = {
+  text: string;
+  sub?: string;
+  at: [number, number, number];
+  win: [number, number];
+  /** 'c' centred dimension, 'a' accent colour, 'k' large serif */
+  kind?: string[];
+  /** model units the point drops by while the house is closed (labels on lifted trades) */
+  lift?: number;
+};
+
 export type ProcessPage = {
   label: string;
   title: string;
@@ -86,5 +98,6 @@ export type ProcessPage = {
   intro: { title: string; text: string };
   stagesLabel: string;
   stages: ProcessStage[];
+  build: { photo: Media; photoCaption: string; drawings: string[]; labels: SceneLabel[]; ariaLabel: string };
   outro: { text: string; link: Link };
 };
