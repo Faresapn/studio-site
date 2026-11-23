@@ -1,0 +1,34 @@
+/* Same pill as the prototype's #rf button. */
+.rf {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  z-index: 50;
+  font:
+    500 11px/1 'Inter',
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #373634;
+  background: rgba(252, 251, 250, 0.88);
+  border: 1px solid #dcdbda;
+  border-radius: 999px;
+  padding: 10px 16px;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.rf:hover {
+  background: #373634;
+  color: #fcfbfa;
+}
+
+.rf:focus-visible {
+  outline: 1px solid #373634;
+  outline-offset: 3px;
+}
