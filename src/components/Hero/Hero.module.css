@@ -1,0 +1,274 @@
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: calc(620 * var(--u));
+  overflow: hidden;
+  background: #2a2826;
+}
+
+/* gradient under the caption */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 40%;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.32));
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* slides: the new photo wipes in from the right over the previous one */
+.sl {
+  position: absolute;
+  inset: 0;
+  display: block;
+  clip-path: inset(0 0 0 100%);
+  transition: clip-path 1.4s var(--io);
+}
+.sl.on {
+  clip-path: inset(0 0 0 0);
+  z-index: 2;
+}
+.sl.was {
+  clip-path: inset(0 0 0 0);
+  z-index: 1;
+}
+.sl:focus-visible {
+  outline: 1px solid #fff;
+  outline-offset: -8px;
+}
+
+.frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: block;
+}
+.par {
+  position: absolute;
+  inset: 0;
+  display: block;
+  will-change: transform;
+}
+.par img {
+  object-fit: cover;
+}
+
+/* caption */
+.cap {
+  position: absolute;
+  left: calc(40 * var(--u));
+  right: calc(40 * var(--u));
+  bottom: calc(40 * var(--u));
+  z-index: 4;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  color: #fff;
+  pointer-events: none;
+  will-change: opacity;
+}
+.cap a,
+.cap button {
+  pointer-events: auto;
+}
+
+/* headline: one group per slide, stacked in the same spot */
+.h1 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: max(24px, calc(30 * var(--t)));
+  line-height: 1.4;
+  max-width: calc(560 * var(--u));
+  display: grid;
+  text-wrap: balance;
+}
+.hg {
+  grid-area: 1 / 1;
+  align-self: end;
+  display: block;
+}
+.ln {
+  display: block;
+  overflow: hidden;
+}
+.ln > span {
+  display: inline-block;
+  will-change: transform;
+}
+/* until JS takes over: other slides' lines wait below their mask; on first paint the first slide's do too */
+.hg:not(.first) .ln > span {
+  transform: translateY(110%);
+}
+:global(html.js) .pre .first .ln > span {
+  transform: translateY(110%);
+}
+
+/* name, meta and the progress bar */
+.ix {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: calc(12 * var(--u));
+  min-width: calc(400 * var(--u));
+  /* an invisible hover area around the name and line */
+  padding: calc(24 * var(--u));
+  margin: calc(-24 * var(--u));
+  pointer-events: auto;
+}
+.row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* on hover the row widens to the left to show type, year and "See project" */
+.ex {
+  display: grid;
+  grid-template-columns: 0fr;
+  transition: grid-template-columns 0.7s var(--out);
+}
+.exi {
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: calc(16 * var(--u));
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.exi::after {
+  content: '';
+  width: 1px;
+  height: calc(12 * var(--u));
+  min-height: 10px;
+  background: rgba(255, 255, 255, 0.4);
+  margin-right: calc(16 * var(--u));
+}
+.ix:hover .ex,
+.ix:focus-within .ex {
+  grid-template-columns: 1fr;
+}
+.ix:hover .exi,
+.ix:focus-within .exi {
+  opacity: 1;
+  transition-delay: 0.15s;
+}
+
+.hm {
+  font-size: max(11px, calc(12 * var(--t)));
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.78);
+  transition: opacity 0.5s ease;
+}
+.hm.hsw {
+  opacity: 0;
+  transition-duration: 0.3s;
+}
+
+.see {
+  font-size: max(10px, calc(11 * var(--t)));
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  padding-bottom: 2px;
+  background: linear-gradient(#fff, #fff) 0 100% / 100% 1px no-repeat;
+}
+.see:hover {
+  background-size: 0 1px;
+  background-position: 100% 100%;
+  transition: background-size 0.5s var(--out);
+}
+.see:focus-visible {
+  outline: 1px solid #fff;
+  outline-offset: 4px;
+}
+
+/* project name: both names share one spot and cross-fade vertically */
+.nm {
+  display: grid;
+  justify-items: end;
+  flex: none;
+  font-size: max(11px, calc(14 * var(--t)));
+}
+.nm span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+  transition:
+    opacity 0.7s ease,
+    transform 0.9s var(--out);
+}
+.nm span.up {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+.nm span.dn {
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+/* thin progress line; clicking it goes to the next slide */
+.bar {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.35);
+  position: relative;
+  cursor: pointer;
+}
+.bar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -10px;
+  bottom: -10px;
+}
+.bar i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: #fff;
+  transition: opacity 0.35s ease;
+}
+.bar:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+.bar:focus-visible {
+  outline: 1px solid #fff;
+  outline-offset: 6px;
+}
+
+/* touch screens: type, year and "See project" are always shown */
+@media (hover: none) {
+  .ex {
+    grid-template-columns: 1fr;
+  }
+  .exi {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 1099px) {
+  .hero {
+    height: 78vh;
+    min-height: 520px;
+  }
+  .cap {
+    left: 20px;
+    right: 20px;
+    bottom: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .h1 {
+    max-width: 360px;
+  }
+  .ix {
+    min-width: 0;
+    width: 100%;
+  }
+}

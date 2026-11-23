@@ -1,0 +1,107 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: calc(12 * var(--u));
+  cursor: pointer;
+}
+
+.wide {
+  grid-column: span 2;
+}
+
+.im {
+  position: relative;
+  overflow: hidden;
+  height: calc(406 * var(--u));
+  background: var(--soft);
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 1.2s var(--io);
+}
+
+.im img {
+  object-fit: cover;
+  transition: transform 1.6s var(--out);
+}
+
+.title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: max(15px, calc(20 * var(--t)));
+  line-height: 1.3;
+}
+.title span {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size 0.6s var(--out);
+}
+
+.mt {
+  display: flex;
+  align-items: center;
+  gap: calc(4 * var(--u));
+  font-size: max(11px, calc(12 * var(--t)));
+  color: var(--meta);
+  margin-top: calc(-7 * var(--u));
+}
+.mt i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--meta);
+  opacity: 0.6;
+}
+
+.title,
+.mt {
+  transition:
+    opacity 1s ease,
+    transform 1.1s var(--out);
+}
+
+/* reveal: the photo unmasks from the top and settles; the caption follows a beat later */
+.card:global(.arm) .im {
+  clip-path: inset(0 0 100% 0);
+}
+.card:global(.arm) .im img {
+  transform: scale(1.18);
+}
+.card:global(.arm) .title,
+.card:global(.arm) .mt {
+  opacity: 0;
+  transform: translateY(calc(28 * var(--u)));
+}
+
+@media (hover: hover) {
+  .card:hover .im img {
+    transform: scale(1.045);
+  }
+  .card:hover .title span {
+    background-size: 100% 1px;
+  }
+}
+
+.card:focus-visible {
+  outline: none;
+}
+.card:focus-visible .im {
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+}
+.card:focus-visible .title span {
+  background-size: 100% 1px;
+}
+
+@media (max-width: 1099px) {
+  .im {
+    height: auto;
+    aspect-ratio: 4 / 5;
+  }
+  .wide .im {
+    aspect-ratio: 16 / 10;
+  }
+}
+
+@media (max-width: 560px) {
+  .wide {
+    grid-column: auto;
+  }
+}

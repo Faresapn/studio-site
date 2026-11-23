@@ -1,0 +1,27 @@
+.logo {
+  position: absolute;
+  left: calc(40 * var(--u));
+  top: calc(40 * var(--u));
+  width: calc(96 * var(--u));
+  z-index: 20;
+  color: var(--ink);
+  display: block;
+}
+
+.logo svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.light {
+  color: var(--white);
+}
+
+@media (max-width: 1099px) {
+  .logo {
+    left: 20px;
+    top: 22px;
+    width: 76px;
+  }
+}

@@ -1,0 +1,17 @@
+.nf {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.nf h1 {
+  font-family: var(--serif);
+  font-size: max(22px, calc(32 * var(--t)));
+  line-height: 1.3;
+}

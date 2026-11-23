@@ -1,0 +1,16 @@
+.intro {
+  width: calc(626 * var(--u));
+  margin: calc(140 * var(--u)) auto 0;
+  text-align: center;
+  font-size: max(13px, calc(15 * var(--t)));
+  line-height: 1.47;
+  color: var(--mute);
+}
+
+@media (max-width: 1099px) {
+  .intro {
+    width: auto;
+    margin: 72px 20px 0;
+    text-align: left;
+  }
+}

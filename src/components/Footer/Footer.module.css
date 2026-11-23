@@ -1,0 +1,143 @@
+.foot {
+  border-top: 1px solid var(--line);
+  padding: calc(41 * var(--u)) calc(40 * var(--u)) 0;
+  background: var(--bg);
+}
+
+.r1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: calc(40 * var(--u));
+}
+
+.city {
+  font-size: max(15px, calc(20 * var(--t)));
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.addr {
+  font-style: normal;
+  font-size: max(12px, calc(16 * var(--t)));
+  line-height: 1.4;
+  color: var(--mute);
+  margin-top: calc(16 * var(--u));
+  max-width: calc(261 * var(--u));
+}
+
+/* "By appointment only" turns into "By appointment · Contact us" on hover */
+.appt {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  cursor: pointer;
+  font-size: max(11px, calc(13 * var(--t)));
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--meta);
+  margin-top: calc(14 * var(--u));
+  padding-bottom: 3px;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition:
+    color 0.4s,
+    background-size 0.6s var(--out);
+}
+.o,
+.x {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  transition:
+    max-width 0.6s var(--out),
+    opacity 0.4s ease;
+}
+.o {
+  max-width: 4em;
+}
+.x {
+  max-width: 0;
+  opacity: 0;
+}
+.appt:hover,
+.appt:focus-visible {
+  color: var(--ink);
+  background-size: 100% 1px;
+}
+.appt:hover .o,
+.appt:focus-visible .o {
+  max-width: 0;
+  opacity: 0;
+}
+.appt:hover .x,
+.appt:focus-visible .x {
+  max-width: 10em;
+  opacity: 1;
+}
+
+.soc {
+  display: flex;
+  gap: calc(40 * var(--u));
+}
+
+.r2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--line);
+  height: calc(87 * var(--u));
+}
+
+.cp,
+.by {
+  font-size: max(12px, calc(16 * var(--t)));
+  color: var(--mute);
+}
+
+.by {
+  display: flex;
+  align-items: center;
+  gap: calc(8 * var(--u));
+}
+
+.hok {
+  display: inline-flex;
+  height: max(14px, calc(20 * var(--u)));
+  color: var(--ink);
+  transition: opacity 0.3s;
+}
+.hok:hover {
+  opacity: 0.7;
+}
+.hok svg {
+  height: 100%;
+  width: auto;
+  display: block;
+}
+
+@media (max-width: 1099px) {
+  .foot {
+    padding: 32px 20px 0;
+  }
+  .r1 {
+    flex-direction: column;
+    gap: 28px;
+  }
+  .soc {
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+  .r2 {
+    height: auto;
+    padding: 22px 0;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+}
+
+@media (max-width: 560px) {
+  .r2 {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -203,6 +203,36 @@ html.lenis body {
   object-fit: cover;
   display: block;
 }
+.flip-clone .flip-hi {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.flip-clone .flip-hi.on {
+  opacity: 1;
+}
+
+/* Frozen copy of the outgoing page during Back/Forward (see lib/transition.ts). */
+.page-ghost {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bg);
+}
+
+/* Loader: hidden unless the boot script decided it plays (first visit of the session, on Home). */
+#loader {
+  display: none;
+}
+html.loading #loader {
+  display: flex;
+}
+html.loading {
+  overflow: hidden;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,

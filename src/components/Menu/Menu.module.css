@@ -1,0 +1,284 @@
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  user-select: none;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(30, 29, 28, 0.28);
+  opacity: 0;
+  transition: opacity 0.6s var(--out);
+}
+
+.pn {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: calc(640 * var(--u));
+  background: var(--bg);
+  transform: translateX(-101%);
+  transition: transform 0.8s var(--menu);
+  display: flex;
+}
+
+/* close strip */
+.strip {
+  width: calc(40 * var(--u));
+  position: relative;
+  flex: none;
+}
+.strip button {
+  position: absolute;
+  left: calc(4 * var(--u));
+  top: calc(20 * var(--u));
+  width: calc(32 * var(--u));
+  height: calc(32 * var(--u));
+  transition: transform 0.5s var(--out);
+}
+.strip button::before,
+.strip button::after {
+  content: '';
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  top: 50%;
+  height: 1px;
+  background: var(--ink);
+  transform: rotate(45deg);
+}
+.strip button::after {
+  transform: rotate(-45deg);
+}
+.strip button:hover {
+  transform: rotate(90deg);
+}
+
+/* photo panel: cross-fades to the hovered page */
+.ph {
+  width: calc(320 * var(--u));
+  flex: none;
+  overflow: hidden;
+  position: relative;
+}
+.photo {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.7s ease;
+}
+.photo.on {
+  opacity: 1;
+  pointer-events: auto;
+}
+.box {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: block;
+}
+.box img {
+  object-fit: cover;
+  transition: transform 1.4s var(--out);
+}
+.photo:hover .box img {
+  transform: scale(1.03);
+}
+.photo:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: -6px;
+}
+
+/* right column: logo at the top, socials anchored to the bottom, links sitting 96px above them */
+.rt {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: calc(40 * var(--u)) calc(30 * var(--u)) min(calc(40 * var(--u)), 4vh);
+}
+
+.logo {
+  display: block;
+  flex: none;
+  width: calc(96 * var(--u));
+  color: var(--ink);
+}
+.logo svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.nav {
+  margin: auto 0 min(calc(96 * var(--u)), 7vh);
+  display: flex;
+  flex-direction: column;
+  gap: min(calc(32 * var(--u)), 3vh);
+}
+.nav a {
+  font-family: var(--serif);
+  font-size: max(22px, calc(32 * var(--t)));
+  line-height: 1.3;
+  display: block;
+  overflow: hidden;
+}
+.nav a span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(10px);
+  padding-bottom: 2px;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    color 0.3s,
+    background-size 0.6s var(--out);
+}
+.nav a:hover span {
+  color: var(--mute);
+}
+.nav a.cur span {
+  background-size: 100% 1px;
+}
+.nav a:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.so {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(16 * var(--u));
+  font-size: max(12px, calc(16 * var(--t)));
+  color: var(--mute);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.so a {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition:
+    color 0.3s,
+    background-size 0.6s var(--out);
+}
+.so a:hover {
+  color: var(--ink);
+  background-size: 100% 1px;
+}
+
+/* open */
+.open {
+  pointer-events: auto;
+}
+.open .scrim {
+  opacity: 1;
+}
+.open .pn {
+  transform: none;
+}
+.open .nav a span {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.7s ease,
+    transform 0.9s var(--out),
+    color 0.3s,
+    background-size 0.6s var(--out);
+}
+.open .nav a:nth-child(1) span {
+  transition-delay: 0.4s, 0.4s, 0s, 0s;
+}
+.open .nav a:nth-child(2) span {
+  transition-delay: 0.45s, 0.45s, 0s, 0s;
+}
+.open .nav a:nth-child(3) span {
+  transition-delay: 0.5s, 0.5s, 0s, 0s;
+}
+.open .so {
+  opacity: 1;
+  transition: opacity 0.7s ease 0.7s;
+}
+
+/* tablet and phone: photos sit in a horizontal row under the logo; tap one to open it */
+@media (max-width: 1099px) {
+  .pn {
+    width: min(100%, 520px);
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr auto;
+  }
+  .strip {
+    grid-row: 1 / -1;
+    width: 44px;
+  }
+  .strip button {
+    width: 28px;
+    height: 28px;
+    left: 8px;
+    top: 20px;
+  }
+  .rt {
+    display: contents;
+  }
+  .logo {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 22px 0 0;
+    width: 76px;
+  }
+  .ph {
+    display: flex;
+    grid-column: 2;
+    grid-row: 2;
+    width: auto;
+    height: clamp(180px, 32vh, 380px);
+    gap: 8px;
+    margin: 28px 0 0;
+    padding-right: 24px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ph::-webkit-scrollbar {
+    display: none;
+  }
+  .photo {
+    position: relative;
+    inset: auto;
+    flex: 0 0 auto;
+    height: 100%;
+    aspect-ratio: 3 / 4;
+    opacity: 1;
+    pointer-events: auto;
+    scroll-snap-align: start;
+    transform: translateX(24px);
+    transition: transform 0.9s var(--out);
+  }
+  .open .photo {
+    transform: none;
+  }
+  .open .photo:nth-child(2) {
+    transition-delay: 0.05s;
+  }
+  .nav {
+    grid-column: 2;
+    grid-row: 3;
+    margin: auto 0 40px;
+    padding: 32px 0 0;
+    gap: 16px;
+  }
+  .so {
+    grid-column: 2;
+    grid-row: 4;
+    gap: 12px;
+    margin-bottom: max(32px, env(safe-area-inset-bottom, 0px));
+  }
+}

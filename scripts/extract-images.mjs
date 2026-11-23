@@ -23,9 +23,31 @@ const iconDir = path.join(root, 'src/components/icons');
 /** Images shown edge to edge (hero slides, band, Process hero, the as-built photo). */
 const LARGE = new Set(['hero1', 'hero2', 'hero3', 'band', 'd10', 'wabuild']);
 const KEYS = [
-  'band', 'd10', 'entrance', 'exterior', 'facade', 'hero1', 'hero2', 'hero3', 'ivbed', 'ivliving',
-  'kitchen', 'living', 'load1', 'load2', 'load3', 'pg1', 'pg2', 'pg3', 'pg4', 'pg5', 'pg6',
-  'rcbed', 'rkcourt', 'stair', 'wabuild',
+  'band',
+  'd10',
+  'entrance',
+  'exterior',
+  'facade',
+  'hero1',
+  'hero2',
+  'hero3',
+  'ivbed',
+  'ivliving',
+  'kitchen',
+  'living',
+  'load1',
+  'load2',
+  'load3',
+  'pg1',
+  'pg2',
+  'pg3',
+  'pg4',
+  'pg5',
+  'pg6',
+  'rcbed',
+  'rkcourt',
+  'stair',
+  'wabuild',
 ];
 
 const html = await readFile(src, 'utf8');
@@ -97,5 +119,8 @@ export default function ${name}({ title = '${label}', ...rest }: SVGProps<SVGSVG
 }
 await mkdir(iconDir, { recursive: true });
 await writeFile(path.join(iconDir, 'LogoMark.tsx'), component('LogoMark', 'Logo placeholder', grabSvg('>LOGO</text>')));
-await writeFile(path.join(iconDir, 'KletosMark.tsx'), component('KletosMark', 'House of Kletos', grabSvg('aria-label="House of Kletos"')));
+await writeFile(
+  path.join(iconDir, 'KletosMark.tsx'),
+  component('KletosMark', 'House of Kletos', grabSvg('aria-label="House of Kletos"')),
+);
 console.log('\nicons → src/components/icons/LogoMark.tsx, KletosMark.tsx');

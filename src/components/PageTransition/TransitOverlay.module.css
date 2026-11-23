@@ -1,0 +1,63 @@
+.transit {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(22 * var(--u));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.on {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lg {
+  width: calc(72 * var(--u));
+  min-width: 56px;
+  color: var(--ink);
+}
+.lg svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.ln {
+  width: calc(120 * var(--u));
+  min-width: 90px;
+  height: 1px;
+  background: var(--line);
+  position: relative;
+  overflow: hidden;
+}
+
+.ln i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 35%;
+  background: var(--ink);
+  animation: travel 1.2s var(--io) infinite;
+}
+
+.to {
+  font-family: var(--serif);
+  font-size: max(15px, calc(18 * var(--t)));
+  color: var(--mute);
+}
+
+@keyframes travel {
+  from {
+    left: -35%;
+  }
+  to {
+    left: 100%;
+  }
+}
