@@ -26,8 +26,7 @@ export function useReveal(scope: RefObject<HTMLElement | null>) {
     const kids = (el: HTMLElement) => [...el.children] as HTMLElement[];
     const play = (el: HTMLElement) =>
       animate(kids(el), { opacity: [0, 1], y: [28 * unit(), 0] }, { duration: 1.1, ease: OUT, delay: stagger(0.11) });
-    const zoom = (el: HTMLElement, from = 1.12) =>
-      animate(el, { scale: [from, 1] }, { duration: 1.8, ease: OUT });
+    const zoom = (el: HTMLElement, from = 1.12) => animate(el, { scale: [from, 1] }, { duration: 1.8, ease: OUT });
 
     const off = onPageEnter(() => {
       io = new IntersectionObserver(

@@ -42,7 +42,16 @@ export default function Hero({ hero }: Props) {
     );
   }, []);
 
-  const { hero: root, bar, cur, prev, meta, next, back, goTo } = useHeroSlider({
+  const {
+    hero: root,
+    bar,
+    cur,
+    prev,
+    meta,
+    next,
+    back,
+    goTo,
+  } = useHeroSlider({
     count: hero.slides.length,
     onChange,
   });

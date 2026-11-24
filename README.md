@@ -54,7 +54,7 @@ src/
     RevealText/ ParallaxImage/ Intro/ SectionTitle/
     ProjectHero/ Gallery/ Lightbox/ NextProject/
     icons/                extracted SVG marks (generated)
-  hooks/                  useLenis, useReveal, useReducedMotion, useHeroSlider, useSwipe, useFocusTrap
+  hooks/                  useLenis, useReveal, useHeroSlider, useSwipe, useFocusTrap
   lib/
     transition.ts         the page-transition controller (route + shared-element + back/forward)
     motion.ts             Motion helpers: the prototype's --out / --io curves, the shared frame loop

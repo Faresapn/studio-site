@@ -1,5 +1,6 @@
 import type { SiteSettings } from './types';
 import { img } from './images';
+import { processPage } from './process';
 
 /** Placeholders kept exactly as in the prototype. */
 export const site: SiteSettings = {
@@ -27,9 +28,7 @@ export const site: SiteSettings = {
     {
       label: 'Process',
       href: '/process',
-      photos: [img.d10, img.pg1, img.pg2, img.pg3, img.pg4, img.pg5, img.pg6].map((src) => ({
-        image: { src, alt: '' },
-      })),
+      photos: [processPage.heroImage, ...processPage.stages.map((st) => st.image)].map((image) => ({ image })),
     },
   ],
 };

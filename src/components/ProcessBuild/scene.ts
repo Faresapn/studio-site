@@ -22,7 +22,7 @@ const LUX = Math.PI;
 export const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const outc = (t: number) => 1 - Math.pow(1 - t, 3);
-export const seg = (p: number, a: number, b: number) => ease(clamp((p - a) / (b - a)));
+const seg = (p: number, a: number, b: number) => ease(clamp((p - a) / (b - a)));
 
 type LineRec = {
   obj: THREE.LineSegments;
@@ -121,7 +121,7 @@ export function placeCamera(cam: THREE.PerspectiveCamera, p: number, aspect: num
   cam.updateMatrixWorld();
 }
 
-export type HouseScene = {
+type HouseScene = {
   root: THREE.Group;
   background: THREE.Color;
   /** Set every object for progress p (0..6). Idempotent. */

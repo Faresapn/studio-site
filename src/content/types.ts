@@ -102,6 +102,6 @@ export type ProcessPage = {
   intro: { title: string; text: string };
   stagesLabel: string;
   stages: ProcessStage[];
-  build: { photo: Media; photoCaption: string; drawings: string[]; labels: SceneLabel[]; ariaLabel: string };
+  build: { photo: Media; photoCaption: string; labels: SceneLabel[]; ariaLabel: string };
   outro: { text: string; link: Link };
 };

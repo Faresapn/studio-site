@@ -84,13 +84,7 @@ export default function Menu() {
                     className={`${s.box} ${i === cur ? s.sh : i === out && n > 1 ? s.out : ''}`}
                     data-flip-src={i === cur ? '' : undefined}
                   >
-                    <Image
-                      src={ph.image.src}
-                      alt=""
-                      fill
-                      sizes="(max-width: 1099px) 40vw, 22vw"
-                      placeholder="blur"
-                    />
+                    <Image src={ph.image.src} alt="" fill sizes="(max-width: 1099px) 40vw, 22vw" placeholder="blur" />
                   </span>
                 ))}
               </TransitionLink>
