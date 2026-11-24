@@ -8,7 +8,7 @@ import { getLenis } from '@/lib/scroll';
 import type { ProcessPage } from '@/content/types';
 import s from './ProcessStages.module.css';
 
-// Remotion + Three load only here, after the page is interactive
+// Three loads only here, after the page is interactive
 const ProcessBuild = dynamic(() => import('@/components/ProcessBuild/ProcessBuild'), { ssr: false });
 
 const N = 6;
@@ -20,13 +20,19 @@ const pad = (n: number) => String(n).padStart(2, '0');
  * The pinned Process section (the prototype's layout B). The section is 7 screens tall; while it is
  * pinned, scroll is mapped to a build progress 0..6 that eases toward the scroll position, as in the
  * prototype (7.5% per frame). The list on the left follows the current stage; the house on the right
- * is a Remotion composition seeked to the matching frame. At the end the as-built photo fades in.
+ * is a Three.js scene rendered at that progress. At the end the as-built photo fades in; without WebGL
+ * the photo shows from the start.
  */
 export default function ProcessStages({ page }: { page: ProcessPage }) {
   const sec = useRef<HTMLElement>(null);
   const stk = useRef<HTMLDivElement>(null);
   const pline = useRef<HTMLElement>(null);
   const photo = useRef<HTMLElement>(null);
+  // without WebGL the as-built photo stands in for the drawing
+  const noGL = useRef(false);
+  const [onFail] = useState(() => () => {
+    noGL.current = true;
+  });
   // a stable mutable object shared with the Player: written every frame, never causes a render
   const [progress] = useState(() => ({ current: 0 }));
   const [cur, setCur] = useState(0);
@@ -54,7 +60,7 @@ export default function ProcessStages({ page }: { page: ProcessPage }) {
         setCur(i);
       }
       if (pline.current) pline.current.style.transform = `scaleX(${(pc / N).toFixed(4)})`;
-      const ph = smooth(clamp((pc - 5.6) / 0.33));
+      const ph = noGL.current ? 1 : smooth(clamp((pc - 5.6) / 0.33));
       if (photo.current) {
         photo.current.style.opacity = ph.toFixed(3);
         const img = photo.current.firstElementChild as HTMLElement | null;
@@ -108,7 +114,7 @@ export default function ProcessStages({ page }: { page: ProcessPage }) {
         </div>
 
         <div className={s.pstage} role="img" aria-label={page.build.ariaLabel}>
-          <ProcessBuild labels={page.build.labels} progress={progress} />
+          <ProcessBuild labels={page.build.labels} progress={progress} onFail={onFail} />
           <figure ref={photo} className={s.pphoto}>
             <Image
               src={page.build.photo.src}

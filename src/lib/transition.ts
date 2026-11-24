@@ -73,8 +73,6 @@ export function ready() {
   emitEnter();
 }
 
-export const isBooting = () => phase === 'boot';
-
 /** Back to the boot state so the loader can play again: cancels transitions and clears their layers. */
 export function reboot() {
   goId++;
@@ -141,7 +139,7 @@ function fadeMain(main: HTMLElement, to: number, duration: number) {
 /* ---------------------------------------------------------------- shared element helpers */
 
 /** Where a project hero sits once the new page is scrolled to the top (mirrors .hero in CSS). */
-export function heroRect(): Rect {
+function heroRect(): Rect {
   const width = document.documentElement.clientWidth;
   const h = window.innerHeight;
   // 100vh with a floor of 620 design units (620px below 1100px), as in the prototype's final .hero rule
@@ -160,7 +158,7 @@ const onScreen = (r: Rect) => r.top < window.innerHeight && r.top + r.height > 0
  * Clone an image box into a fixed layer exactly over it. The clone copies the image's current
  * transform (hover zoom, parallax offset) so the hand-over is seamless, then eases that back to rest.
  */
-export function makeClone(box: HTMLElement): HTMLDivElement | null {
+function makeClone(box: HTMLElement): HTMLDivElement | null {
   const img = box instanceof HTMLImageElement ? box : box.querySelector('img');
   if (!img) return null;
   const r = rectOf(box);

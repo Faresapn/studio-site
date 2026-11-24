@@ -8,9 +8,9 @@ export default function Band({ band }: { band: HomePage['band'] }) {
   return (
     <section className={s.band} aria-labelledby="band-title">
       <TransitionLink href={band.link.href} className={s.cover} tabIndex={-1} aria-hidden="true">
-        <ParallaxImage src={band.image.src} alt={band.image.alt} />
+        <ParallaxImage src={band.image.src} alt={band.image.alt} zoom />
       </TransitionLink>
-      <div className={`${s.in} rv`}>
+      <div className={s.in} data-stagger>
         <h2 id="band-title">{band.title}</h2>
         <p>{band.text}</p>
         <TransitionLink className="lk lt" href={band.link.href}>

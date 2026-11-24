@@ -64,3 +64,13 @@
     padding: 0 20px;
   }
 }
+
+/* hovering the band leans into the photo a little (CSS `scale`, so it composes with the reveal zoom) */
+.cover [data-zoom-box] {
+  transition: scale 1.6s var(--out);
+}
+@media (hover: hover) {
+  .cover:hover [data-zoom-box] {
+    scale: 1.035;
+  }
+}

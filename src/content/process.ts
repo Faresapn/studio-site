@@ -52,7 +52,6 @@ export const processPage: ProcessPage = {
     photo: { src: img.wabuild, alt: 'Completed house' },
     photoCaption: 'Completed house, as built',
     ariaLabel: 'A house taking shape, one stage at a time',
-    drawings: ['Site', 'Plan and massing', 'Details', 'Dimensions', 'Trades', 'As built'],
     labels: [
       { text: 'Site', sub: '28 × 20 m', at: [-14, 0, 11.6], win: [0, 1.05] },
       { text: 'Existing trees, kept', at: [12.4, 5.6, 6.8], win: [0.3, 1.05] },

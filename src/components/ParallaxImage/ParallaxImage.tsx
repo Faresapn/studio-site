@@ -11,13 +11,15 @@ type Props = {
   /** Total drift in % of the image height across one viewport of scroll (negative = up). */
   amount?: number;
   sizes?: string;
+  /** Settle from a slight zoom as it comes into view (see useReveal → data-zoom). */
+  zoom?: boolean;
 };
 
 /**
  * Background image that drifts with scroll (desktop only, as in the prototype's band). The position is
  * read from the container's layout, never from the moved image, and eased 12% per frame so it glides.
  */
-export default function ParallaxImage({ src, alt, className, amount = -9, sizes = '100vw' }: Props) {
+export default function ParallaxImage({ src, alt, className, amount = -9, sizes = '100vw', zoom }: Props) {
   const box = useRef<HTMLDivElement>(null);
   const img = useRef<HTMLDivElement>(null);
 
@@ -49,7 +51,9 @@ export default function ParallaxImage({ src, alt, className, amount = -9, sizes 
         ref={img}
         style={{ position: 'absolute', left: 0, top: '-12%', width: '100%', height: '124%', willChange: 'transform' }}
       >
-        <Image src={src} alt={alt} fill sizes={sizes} placeholder="blur" style={{ objectFit: 'cover' }} />
+        <div data-zoom={zoom ? '' : undefined} data-zoom-box style={{ position: 'absolute', inset: 0 }}>
+          <Image src={src} alt={alt} fill sizes={sizes} placeholder="blur" style={{ objectFit: 'cover' }} />
+        </div>
       </div>
     </div>
   );

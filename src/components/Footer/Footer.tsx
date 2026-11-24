@@ -7,7 +7,7 @@ import s from './Footer.module.css';
 export default function Footer() {
   const a = site.appointment;
   return (
-    <footer className={s.foot}>
+    <footer className={s.foot} data-stagger>
       <div className={s.r1}>
         <div>
           <div className={s.city}>{site.city}</div>

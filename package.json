@@ -2,6 +2,9 @@
   "name": "studio-site",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -13,15 +16,11 @@
     "screens": "node scripts/screens.mjs"
   },
   "dependencies": {
-    "@react-three/fiber": "^9.8.2",
-    "@remotion/player": "^4.0.546",
-    "@remotion/three": "^4.0.546",
     "lenis": "^1.3.27",
     "motion": "^14.14.0",
     "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "remotion": "^4.0.546",
     "three": "^0.187.0"
   },
   "devDependencies": {

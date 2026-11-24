@@ -4,6 +4,18 @@
   min-height: calc(620 * var(--u));
   overflow: hidden;
   background: #2a2826;
+  /* horizontal swipes belong to the slider, vertical ones still scroll the page */
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .sl {
+    cursor: grab;
+  }
+  .sl:active {
+    cursor: grabbing;
+  }
 }
 
 /* gradient under the caption */
@@ -32,6 +44,13 @@
 .sl.was {
   clip-path: inset(0 0 0 0);
   z-index: 1;
+}
+/* slides waiting off-stage reset instantly; going back they wait on the left and wipe in from there */
+.sl:not(.on):not(.was) {
+  transition: none;
+}
+.hero[data-dir='back'] .sl:not(.on):not(.was) {
+  clip-path: inset(0 100% 0 0);
 }
 .sl:focus-visible {
   outline: 1px solid #fff;
@@ -241,6 +260,59 @@
   outline-offset: 6px;
 }
 
+/* dots: one per slide, centred under the photo; the current one stretches into a short line */
+.dots {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: calc(44 * var(--u));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: calc(4 * var(--u));
+  transition: opacity 0.8s ease 0.6s;
+}
+.pre .dots {
+  opacity: 0;
+}
+.dots button {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+.dots button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.45);
+  transition:
+    width 0.6s var(--out),
+    margin-left 0.6s var(--out),
+    background-color 0.4s ease;
+}
+.dots button:hover::before {
+  background: rgba(255, 255, 255, 0.8);
+}
+.dots button.don {
+  width: 34px;
+}
+.dots button.don::before {
+  width: 22px;
+  margin-left: -11px;
+  background: #fff;
+}
+.dots button:focus-visible {
+  outline: 1px solid #fff;
+  outline-offset: 2px;
+  border-radius: 9px;
+}
+
 /* touch screens: type, year and "See project" are always shown */
 @media (hover: none) {
   .ex {
@@ -255,7 +327,7 @@
   .cap {
     left: 20px;
     right: 20px;
-    bottom: 24px;
+    bottom: 52px;
     flex-direction: column;
     align-items: flex-start;
     gap: 20px;
@@ -266,5 +338,8 @@
   .ix {
     min-width: 0;
     width: 100%;
+  }
+  .dots {
+    bottom: 14px;
   }
 }

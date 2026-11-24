@@ -6,7 +6,7 @@ type Props = { title: string; text: string; link: Link };
 
 export default function Cta({ title, text, link }: Props) {
   return (
-    <section className={`${s.cta} rv`}>
+    <section className={s.cta} data-stagger>
       <h2>{title}</h2>
       <p>{text}</p>
       <TransitionLink className="lk" href={link.href}>

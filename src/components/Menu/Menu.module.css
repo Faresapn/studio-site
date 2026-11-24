@@ -76,17 +76,48 @@
   opacity: 1;
   pointer-events: auto;
 }
+/*
+ * Each item's photos play in turn. Waiting photos sit clipped on the right; the next one wipes in
+ * (clip-path) while its image glides in from the right and settles from a slight zoom; the previous one
+ * stays underneath and is pushed left, like a print slid off the stack.
+ */
 .box {
   position: absolute;
   inset: 0;
   overflow: hidden;
   display: block;
+  clip-path: inset(0 0 0 100%);
+  z-index: 0;
 }
 .box img {
   object-fit: cover;
-  transition: transform 1.4s var(--out);
+  translate: 22% 0;
+  scale: 1.12;
 }
-.photo:hover .box img {
+.box.sh {
+  clip-path: inset(0 0 0 0);
+  z-index: 2;
+  transition:
+    clip-path 1.3s var(--io),
+    transform 1.4s var(--out);
+}
+.box.sh img {
+  translate: 0 0;
+  scale: 1;
+  transition:
+    translate 1.5s var(--io),
+    scale 5.5s var(--out);
+}
+.box.out {
+  clip-path: inset(0 0 0 0);
+  z-index: 1;
+}
+.box.out img {
+  translate: -18% 0;
+  scale: 1;
+  transition: translate 1.4s var(--io);
+}
+.photo:hover .box.sh {
   transform: scale(1.03);
 }
 .photo:focus-visible {

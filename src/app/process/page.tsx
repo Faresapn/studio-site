@@ -12,22 +12,24 @@ export const metadata: Metadata = { title: 'Process', description: p.title };
 
 /**
  * Process: the hero with "We talk first", then the pinned six-stage section where a line drawing of a
- * house builds itself as you scroll (a Remotion composition seeked by scroll), then the outro.
+ * house builds itself as you scroll (Three.js, driven by scroll), then the outro.
  */
 export default function ProcessPage() {
   return (
     <RevealScope>
       <section className={s.pr1}>
         <Logo light />
-        <Image
-          className={s.bg}
-          src={p.heroImage.src}
-          alt={p.heroImage.alt}
-          fill
-          sizes="100vw"
-          preload
-          placeholder="blur"
-        />
+        <div className={s.zm} data-zoom>
+          <Image
+            className={s.bg}
+            src={p.heroImage.src}
+            alt={p.heroImage.alt}
+            fill
+            sizes="100vw"
+            preload
+            placeholder="blur"
+          />
+        </div>
         <div className={s.tl}>
           <div className={s.lab}>{p.label}</div>
           <h1>{p.title}</h1>
@@ -40,7 +42,7 @@ export default function ProcessPage() {
 
       <ProcessStages page={p} />
 
-      <section className={`${s.pr3} rv`}>
+      <section className={s.pr3} data-stagger>
         <p>{p.outro.text}</p>
         <TransitionLink className="lk" href={p.outro.link.href}>
           {p.outro.link.label}
