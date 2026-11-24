@@ -15,8 +15,22 @@ export const site: SiteSettings = {
   copyright: '© Studio Name  2026',
   credit: { label: 'Website by', studio: 'House of Kletos', href: '/contact' },
   nav: [
-    { label: 'Home', href: '/', image: { src: img.hero1, alt: '' } },
-    { label: 'Process', href: '/process', image: { src: img.d10, alt: '' } },
+    {
+      label: 'Home',
+      href: '/',
+      photos: [
+        { image: { src: img.hero1, alt: '' }, project: 'house-a' },
+        { image: { src: img.hero2, alt: '' }, project: 'house-b' },
+        { image: { src: img.hero3, alt: '' }, project: 'house-a' },
+      ],
+    },
+    {
+      label: 'Process',
+      href: '/process',
+      photos: [img.d10, img.pg1, img.pg2, img.pg3, img.pg4, img.pg5, img.pg6].map((src) => ({
+        image: { src, alt: '' },
+      })),
+    },
   ],
 };
 

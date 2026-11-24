@@ -26,7 +26,11 @@ export type SiteSettings = {
   socials: Link[];
   copyright: string;
   credit: { label: string; studio: string; href: string };
-  nav: (Link & { image: Media })[];
+  /**
+   * Menu items. `photos` play in turn in the menu's photo panel while it is open; a photo that belongs
+   * to a project leads to that project, otherwise to the item's page.
+   */
+  nav: (Link & { photos: { image: Media; project?: string }[] })[];
 };
 
 /** sanity: document `project` */
