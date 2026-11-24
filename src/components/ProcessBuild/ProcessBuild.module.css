@@ -2,6 +2,13 @@
   position: absolute;
   inset: 0;
 }
+.cv {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
 
 /* labels pinned to points in the model */
 .tags {

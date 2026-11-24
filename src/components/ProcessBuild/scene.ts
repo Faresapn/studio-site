@@ -7,7 +7,7 @@
  *   2 details: timber screen, glazing, concrete panels, planting   3 dimensions (one muted accent)
  *   4 the house lifts apart into its trades   5 closes up, materials and dusk light, then the real photo
  *
- * Everything here is a pure function of p, so any Remotion frame can be rendered in any order.
+ * Everything here is a pure function of p, so the scene can be rendered at any progress in any order.
  */
 import * as THREE from 'three';
 
@@ -95,8 +95,11 @@ const K = [
   [36, 9, 62, 4.6],
 ];
 
-/** Place a camera for progress p; also used to project the HTML labels. */
-export function placeCamera(cam: THREE.PerspectiveCamera, p: number, aspect: number) {
+/**
+ * Place a camera for progress p. `sway` is the eased pointer offset over the stage (-0.5..0.5 each way),
+ * which turns the camera a few degrees as in the prototype.
+ */
+export function placeCamera(cam: THREE.PerspectiveCamera, p: number, aspect: number, sway = { x: 0, y: 0 }) {
   const f = clamp(p - 0.5, 0, N - 1);
   const i = Math.min(N - 2, Math.floor(f));
   const t = ease(f - i);
@@ -105,8 +108,8 @@ export function placeCamera(cam: THREE.PerspectiveCamera, p: number, aspect: num
   const L = (j: number) => a[j] + (b[j] - a[j]) * t;
   let r = L(2);
   if (aspect < 1.25) r *= (1.25 / aspect) * 0.92 + 0.08; // keep the model in frame on tall stages
-  const az = (L(0) * Math.PI) / 180;
-  const el = (L(1) * Math.PI) / 180;
+  const az = ((L(0) + sway.x * 7) * Math.PI) / 180;
+  const el = ((L(1) - sway.y * 4) * Math.PI) / 180;
   const ty = L(3);
   cam.fov = 22;
   cam.aspect = aspect;

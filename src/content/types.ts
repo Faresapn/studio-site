@@ -62,7 +62,7 @@ export type WorkCard = {
 
 /** sanity: document `homePage` (singleton) */
 export type HomePage = {
-  hero: { slides: HeroSlide[]; seeLabel: string; nextLabel: string };
+  hero: { slides: HeroSlide[]; seeLabel: string; nextLabel: string; dotsLabel: string };
   intro: string;
   worksTitle: string;
   gridA: WorkCard[];

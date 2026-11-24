@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import TransitionLink from '@/components/PageTransition/TransitionLink';
 import Logo from '@/components/Logo/Logo';
 import { useHeroSlider } from '@/hooks/useHeroSlider';
+import { useSwipe } from '@/hooks/useSwipe';
 import { animate, IO, OUT, onFrame, prefersReducedMotion, stagger } from '@/lib/motion';
 import { onPageEnter } from '@/lib/transition';
 import { getProject, projectHref } from '@/content/projects';
@@ -19,6 +20,7 @@ const linesOf = (el: Element | null | undefined) => (el ? [...el.querySelectorAl
  * Home hero. Three slides, 6.5 s each: the photo wipes in from the right, the headline lines leave and
  * arrive with a stagger, the project name swaps vertically and the meta line cross-fades. The images
  * move at 0.32× scroll and the caption fades over the first 55% of the viewport.
+ * It can also be driven by hand: swipe or drag the photo, use the arrow keys, or pick a dot.
  */
 export default function Hero({ hero }: Props) {
   const cap = useRef<HTMLDivElement>(null);
@@ -40,7 +42,27 @@ export default function Hero({ hero }: Props) {
     );
   }, []);
 
-  const { hero: root, bar, cur, prev, meta, next } = useHeroSlider({ count: hero.slides.length, onChange });
+  const { hero: root, bar, cur, prev, meta, next, back, goTo } = useHeroSlider({
+    count: hero.slides.length,
+    onChange,
+  });
+
+  /* drag: the photo follows the pointer with resistance, then settles back as the next one wipes in */
+  const curRef = useRef(cur);
+  useEffect(() => {
+    curRef.current = cur;
+  }, [cur]);
+  const onSwipe = useCallback((dir: 1 | -1) => (dir > 0 ? next() : back()), [next, back]);
+  const onDrag = useCallback(
+    (dx: number, done?: boolean) => {
+      const el = root.current?.querySelector<HTMLElement>(`[data-hero-slide="${curRef.current}"]`);
+      if (!el) return;
+      if (done) animate(el, { x: 0 }, { duration: prefersReducedMotion() ? 0 : 0.7, ease: OUT });
+      else animate(el, { x: dx * 0.22 }, { duration: 0 });
+    },
+    [root],
+  );
+  useSwipe(root, { onSwipe, onDrag });
 
   /* intro: headline rises in once the page has entered (after the loader or a route transition) */
   useEffect(() => {
@@ -83,6 +105,10 @@ export default function Hero({ hero }: Props) {
       className={`${s.hero} ${pre ? s.pre : ''}`}
       aria-roledescription="carousel"
       aria-label="Featured projects"
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowRight') next();
+        else if (e.key === 'ArrowLeft') back();
+      }}
     >
       <Logo light />
 
@@ -136,7 +162,7 @@ export default function Hero({ hero }: Props) {
           ))}
         </h1>
 
-        <div className={s.ix}>
+        <div className={s.ix} data-no-swipe>
           <div className={s.row}>
             <div className={s.ex}>
               <div className={s.exi}>
@@ -164,6 +190,19 @@ export default function Hero({ hero }: Props) {
             <i ref={bar} />
           </button>
         </div>
+      </div>
+
+      <div className={s.dots} role="group" aria-label={hero.dotsLabel} data-no-swipe>
+        {hero.slides.map((sl, i) => (
+          <button
+            key={i}
+            type="button"
+            className={i === cur ? s.don : ''}
+            aria-label={`${i + 1} / ${hero.slides.length}: ${getProject(sl.project)?.name ?? ''}`}
+            aria-current={i === cur ? 'true' : undefined}
+            onClick={() => goTo(i)}
+          />
+        ))}
       </div>
     </section>
   );

@@ -15,6 +15,8 @@ type Options = {
 /**
  * Timing for the home hero: 6.5 s per slide, a progress bar that fills over that time,
  * pausing whenever the hero is off-screen, the tab is hidden or the page has not entered yet.
+ * `next`, `back` and `goTo` change slide by hand (swipe, arrows, dots) and restart the timer.
+ * Going back flips the wipe so the new photo comes in from the left.
  */
 export function useHeroSlider({ count, onChange }: Options) {
   const hero = useRef<HTMLElement>(null);
@@ -30,12 +32,18 @@ export function useHeroSlider({ count, onChange }: Options) {
   }, [onChange]);
 
   const go = useCallback(
-    (to: number) => {
+    (to: number, dir: 1 | -1 = 1) => {
       const s = state.current;
       const from = s.cur;
       const next = (to + count) % count;
       if (next === from) return;
       s.cur = next;
+      // the direction class must be on the DOM (and laid out) before the new slide starts its wipe
+      const el = hero.current;
+      if (el) {
+        el.dataset.dir = dir < 0 ? 'back' : 'fwd';
+        void el.offsetWidth;
+      }
       setPrev(from);
       setCur(next);
       changeRef.current?.(from, next);
@@ -56,7 +64,9 @@ export function useHeroSlider({ count, onChange }: Options) {
     [count],
   );
 
-  const next = useCallback(() => go(state.current.cur + 1), [go]);
+  const next = useCallback(() => go(state.current.cur + 1, 1), [go]);
+  const back = useCallback(() => go(state.current.cur - 1, -1), [go]);
+  const goTo = useCallback((i: number) => go(i, i < state.current.cur ? -1 : 1), [go]);
 
   useEffect(() => {
     const s = state.current;
@@ -86,5 +96,5 @@ export function useHeroSlider({ count, onChange }: Options) {
     };
   }, [next]);
 
-  return { hero, bar, cur, prev, meta, next };
+  return { hero, bar, cur, prev, meta, next, back, goTo };
 }

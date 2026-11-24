@@ -6,6 +6,10 @@
   overflow: hidden;
   color: #fff;
 }
+.zm {
+  position: absolute;
+  inset: 0;
+}
 .bg {
   object-fit: cover;
 }

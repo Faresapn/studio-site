@@ -15,6 +15,7 @@ export const home: HomePage = {
   hero: {
     seeLabel: 'See project',
     nextLabel: 'Next project',
+    dotsLabel: 'Choose a project',
     slides: [
       {
         project: 'house-a',
